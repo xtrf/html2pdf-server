@@ -1,4 +1,4 @@
-package eu.xtrf.html2pdf.server.converter;
+package eu.xtrf.html2pdf.server.converter.service;
 
 import com.itextpdf.kernel.events.Event;
 import com.itextpdf.kernel.events.IEventHandler;
