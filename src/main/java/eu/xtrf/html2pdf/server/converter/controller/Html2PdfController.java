@@ -7,6 +7,7 @@ import eu.xtrf.html2pdf.server.converter.service.Html2PdfConverterService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Duration;
 
 @RestController
 @Slf4j
@@ -32,14 +34,18 @@ public class Html2PdfController {
 
     @PostMapping(path = "/v1/convert")
     public ResponseEntity convertDocument(@RequestBody ConvertDocumentRequestDto dto) {
+        InputStreamResource pdfFileResource = null;
         try {
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
             String resourcesPath = prepareResourcesDir(dto);
             File tempPdfFile = converterService.generatePdfToFile(dto.getContent(), dto.getHeader(), dto.getFooter(), resourcesPath);
+            stopWatch.stop();
 
-            InputStreamResource pdfFileResource = new InputStreamResource(new FileInputStream(tempPdfFile));
+            pdfFileResource = new InputStreamResource(new FileInputStream(tempPdfFile));
             log.info(String.format(
-                    "[%s] Rendered document for request %s in %s ns",
-                    dto.getClientId(), dto.getRequestHash(), 10));
+                    "[%s] Rendered document for request %s in %s",
+                    dto.getClientId(), dto.getRequestHash(), Duration.ofNanos(stopWatch.getNanoTime()).toString()));
 
             return ResponseEntity
                     .ok()
