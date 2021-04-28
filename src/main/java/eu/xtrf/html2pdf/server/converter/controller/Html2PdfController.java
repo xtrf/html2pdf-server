@@ -1,6 +1,7 @@
 package eu.xtrf.html2pdf.server.converter.controller;
 
 import eu.xtrf.html2pdf.server.converter.dto.ConvertDocumentRequestDto;
+import eu.xtrf.html2pdf.server.converter.dto.ConvertDocumentRequestWithHash;
 import eu.xtrf.html2pdf.server.converter.dto.ResourceDto;
 import eu.xtrf.html2pdf.server.converter.exception.ProcessingFailureException;
 import eu.xtrf.html2pdf.server.converter.service.Html2PdfConverterService;
@@ -13,10 +14,10 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
+import javax.validation.Valid;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -33,59 +34,74 @@ public class Html2PdfController {
     }
 
     @PostMapping(path = "/v1/convert")
-    public ResponseEntity convertDocument(@RequestBody ConvertDocumentRequestDto dto) {
-        InputStreamResource pdfFileResource = null;
+    public ResponseEntity convertDocument(@Valid @RequestBody ConvertDocumentRequestDto dto) {
+        return convertDocument(new ConvertDocumentRequestWithHash(dto));
+    }
+
+    private ResponseEntity convertDocument(ConvertDocumentRequestWithHash dto) {
         try {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
             String resourcesPath = prepareResourcesDir(dto);
-            File tempPdfFile = converterService.generatePdfToFile(dto.getContent(), dto.getHeader(), dto.getFooter(), resourcesPath);
+            File tempPdfFile = converterService.generatePdfToFile(dto.getConvertDocumentRequestDto().getContent(),
+                    dto.getConvertDocumentRequestDto().getHeader(),
+                    dto.getConvertDocumentRequestDto().getFooter(),
+                    resourcesPath);
             stopWatch.stop();
 
-            pdfFileResource = new InputStreamResource(new FileInputStream(tempPdfFile));
             log.info(String.format(
                     "[%s] Rendered document for request %s in %s",
-                    dto.getClientId(), dto.getRequestHash(), Duration.ofNanos(stopWatch.getNanoTime()).toString()));
+                    dto.getConvertDocumentRequestDto().getClientId(), dto.getRequestHash(), Duration.ofNanos(stopWatch.getNanoTime()).toString()));
 
-            return ResponseEntity
-                    .ok()
-                    .contentLength(tempPdfFile.length())
-                    .contentType(MediaType.parseMediaType("application/octet-stream"))
-                    .body(pdfFileResource);
+            return buildResponse(tempPdfFile);
         } catch (Exception ex) {
-            log.warn(String.format("[%s] Unable to process a request %s: %s", dto.getClientId(), dto.getRequestHash(), ex.getMessage()));
+            log.warn(String.format("[%s] Unable to process a request %s: %s", dto.getConvertDocumentRequestDto().getClientId(), dto.getRequestHash(), ex.getMessage()));
 
             return new ResponseEntity(String.format("Unable to process the request, error: %s", ex.getMessage()),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         } finally {
             try {
-                clearResources(dto);
+                clearResources(dto.getRequestHash());
             } catch (IOException e) {
                 log.warn("Cannot clear resource dir for request " + dto.getRequestHash());
             }
         }
     }
 
-    private String prepareResourcesDir(ConvertDocumentRequestDto dto) throws IOException {
-        String resourcesDirPath = getResourcePath(dto);
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(value = {IllegalArgumentException.class})
+    protected void handleIllegalArgumentException(RuntimeException e, WebRequest request) {
+    }
+
+    private ResponseEntity buildResponse(File resultPdfFile) throws IOException {
+        InputStreamResource pdfFileResource = new InputStreamResource(new FileInputStream(resultPdfFile));
+        return ResponseEntity
+                .ok()
+                .contentLength(resultPdfFile.length())
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .body(pdfFileResource);
+    }
+
+    private String prepareResourcesDir(ConvertDocumentRequestWithHash requestWithHash) throws IOException {
+        String resourcesDirPath = getResourcePath(requestWithHash.getRequestHash());
         Files.createDirectories(Paths.get(resourcesDirPath));
-        dto.getResources().forEach(resource -> saveResource(resourcesDirPath, resource));
+        requestWithHash.getConvertDocumentRequestDto().getResources().forEach(resource -> saveResource(resourcesDirPath, resource));
         return resourcesDirPath;
     }
 
-    private void clearResources(ConvertDocumentRequestDto dto) throws IOException {
-        FileUtils.deleteDirectory(new File(getResourcePath(dto)));
+    private void clearResources(String requestHash) throws IOException {
+        FileUtils.deleteDirectory(new File(getResourcePath(requestHash)));
     }
 
-    private String getResourcePath(ConvertDocumentRequestDto dto) {
-        return "/tmp/html2pdf" + File.separator + dto.getRequestHash();
+    private String getResourcePath(String requestHash) {
+        return "/tmp/html2pdf" + File.separator + requestHash;
     }
 
     private void saveResource(String dirPath, ResourceDto dto) {
         byte[] data = Base64.decodeBase64(dto.getData());
         try (OutputStream os = new FileOutputStream(dirPath + File.separator + dto.getUid())) {
             os.write(data);
-        } catch(IOException exception) {
+        } catch (IOException exception) {
             throw new ProcessingFailureException();
         }
     }
