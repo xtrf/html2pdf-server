@@ -46,6 +46,7 @@ public class Html2PdfController {
             File tempPdfFile = converterService.generatePdfToFile(dto.getConvertDocumentRequestDto().getContent(),
                     dto.getConvertDocumentRequestDto().getHeader(),
                     dto.getConvertDocumentRequestDto().getFooter(),
+                    dto.getConvertDocumentRequestDto().getStyles(),
                     resourcesPath);
             stopWatch.stop();
 

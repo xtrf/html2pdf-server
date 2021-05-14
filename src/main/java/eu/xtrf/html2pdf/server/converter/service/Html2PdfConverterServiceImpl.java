@@ -14,6 +14,7 @@ import com.itextpdf.layout.property.AreaBreakType;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,9 +24,10 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
     private static final String NEW_PAGE_TAG = "#np#";
 
     @Override
-    public File generatePdfToFile(String content, String header, String footer, String resourcesPath) throws IOException {
+    public File generatePdfToFile(String content, String header, String footer, String styles, String resourcesPath) throws IOException {
         List<String> pages = divideOnPages(content);
         ConverterProperties converterProperties = new ConverterProperties().setBaseUri(resourcesPath);
+        prepareStylesFile(styles, resourcesPath);
 
         File tempPdfFile = File.createTempFile("generated_", ".pdf");
 
@@ -85,5 +87,11 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
         pages.add(currentPageContent.toString());
 
         return pages;
+    }
+
+    private void prepareStylesFile(String styles, String resourcesPath) throws IOException{
+        try (FileOutputStream fos = new FileOutputStream(new File(resourcesPath + "/styles.css"))) {
+            fos.write(styles.getBytes());
+        }
     }
 }
