@@ -23,6 +23,7 @@ public class ConvertDocumentRequestDto {
     String footer = "<table></table>";
     @NotBlank
     String clientId;
+    String styles;
     @Builder.Default
     Collection<ResourceDto> resources = Collections.emptyList();
 }
