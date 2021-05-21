@@ -11,9 +11,8 @@ public class ConvertDocumentRequestWithHash {
     private String requestHash;
 
     public ConvertDocumentRequestWithHash(ConvertDocumentRequestDto convertDocumentRequestDto) {
-        this.convertDocumentRequestDto = new ConvertDocumentRequestDto(convertDocumentRequestDto.getContent(),
-                convertDocumentRequestDto.getHeader(),
-                convertDocumentRequestDto.getFooter(),
+        this.convertDocumentRequestDto = new ConvertDocumentRequestDto(convertDocumentRequestDto.getDocumentContent(),
+                convertDocumentRequestDto.getThemeContent(),
                 convertDocumentRequestDto.getClientId(),
                 convertDocumentRequestDto.getStyles(),
                 convertDocumentRequestDto.getResources());
@@ -23,9 +22,8 @@ public class ConvertDocumentRequestWithHash {
 
     private String computeRequestHash(ConvertDocumentRequestDto convertDocumentRequestDto) {
         return DigestUtils.sha1Hex(convertDocumentRequestDto.getClientId() +
-                convertDocumentRequestDto.getHeader() +
-                convertDocumentRequestDto.getContent() +
-                convertDocumentRequestDto.getFooter() +
+                convertDocumentRequestDto.getThemeContent() +
+                convertDocumentRequestDto.getDocumentContent() +
                 convertDocumentRequestDto.getResources().stream()
                         .map(ConvertDocumentRequestWithHash::getResourceDtoHash)
                         .collect(Collectors.joining()));

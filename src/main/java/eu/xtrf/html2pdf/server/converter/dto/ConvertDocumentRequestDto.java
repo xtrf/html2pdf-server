@@ -15,12 +15,8 @@ import java.util.Collections;
 @Validated
 public class ConvertDocumentRequestDto {
 
-    @NotBlank
-    String content;
-    @Builder.Default
-    String header = "<table></table>";
-    @Builder.Default
-    String footer = "<table></table>";
+    String documentContent;
+    String themeContent;
     @NotBlank
     String clientId;
     String styles;

@@ -65,6 +65,21 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
         return tempPdfFile;
     }
 
+    @Override
+    public File generatePdfToFile(String themeContent, String documentContent, String styles, String resourcesPath) throws IOException {
+        ConverterProperties converterProperties = new ConverterProperties().setBaseUri(resourcesPath);
+        prepareStylesFile(styles, resourcesPath);
+
+        File tempPdfFile = File.createTempFile("generated_", ".pdf");
+        FileOutputStream fos = new FileOutputStream(tempPdfFile);
+
+        String pageWithTheme = themeContent.replace("#DOCUMENT_CONTENT", documentContent);
+        HtmlConverter.convertToPdf(pageWithTheme, fos, converterProperties);
+        fos.close();
+
+        return tempPdfFile;
+    }
+
     private List<String> divideOnPages(String content) {
         List<String> pages = new ArrayList<>();
 
@@ -89,7 +104,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
         return pages;
     }
 
-    private void prepareStylesFile(String styles, String resourcesPath) throws IOException{
+    private void prepareStylesFile(String styles, String resourcesPath) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(new File(resourcesPath + "/styles.css"))) {
             fos.write(styles.getBytes());
         }

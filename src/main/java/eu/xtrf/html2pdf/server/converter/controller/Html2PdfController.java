@@ -43,9 +43,8 @@ public class Html2PdfController {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
             String resourcesPath = prepareResourcesDir(dto);
-            File tempPdfFile = converterService.generatePdfToFile(dto.getConvertDocumentRequestDto().getContent(),
-                    dto.getConvertDocumentRequestDto().getHeader(),
-                    dto.getConvertDocumentRequestDto().getFooter(),
+            File tempPdfFile = converterService.generatePdfToFile(dto.getConvertDocumentRequestDto().getThemeContent(),
+                    dto.getConvertDocumentRequestDto().getDocumentContent(),
                     dto.getConvertDocumentRequestDto().getStyles(),
                     resourcesPath);
             stopWatch.stop();
