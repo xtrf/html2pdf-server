@@ -46,7 +46,8 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
         sharedContext.setInteractive(false);
         sharedContext.setUserAgentCallback(new ConverterOpenPdfUserAgent(renderer.getOutputDevice(), sharedContext));
         sharedContext.getTextRenderer().setSmoothingThreshold(0);
-        renderer.getFontResolver().addFontDirectory("./src/main/resources/fonts", true);
+        // this path to fonts directory works only inside docker, for local execution change to: ./src/main/resources/fonts
+        renderer.getFontResolver().addFontDirectory("/fonts", true); // TODO: move path to configuration file
         renderer.setDocumentFromString(htmlToXhtml(html), resourcesPath);
         renderer.layout();
 
