@@ -94,7 +94,7 @@ public class Html2PdfController {
     }
 
     private String getResourcePath(String requestHash) {
-        return "/tmp/html2pdf" + File.separator + requestHash;
+        return "/tmp/html2pdf" + File.separator + requestHash + File.separator;
     }
 
     private void saveResource(String dirPath, ResourceDto dto) {
