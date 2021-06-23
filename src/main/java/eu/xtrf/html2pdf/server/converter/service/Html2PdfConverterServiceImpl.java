@@ -1,5 +1,6 @@
 package eu.xtrf.html2pdf.server.converter.service;
 
+import com.google.common.collect.ImmutableMap;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
@@ -10,9 +11,24 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Map;
 
 @Component
 public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
+    static final Map<String, String> replacementMap = ImmutableMap.<String, String>builder()
+            .put("&nbsp;","&#160;")
+            .put("&lt;","&#60;")
+            .put("&gt;","&#62;")
+            .put("&amp;","&#38;")
+            .put("&quot;","&#34;")
+            .put("&apos;","&#39;")
+            .put("&cent;","&#162;")
+            .put("&pound;","&#163;")
+            .put("&yen;","&#165;")
+            .put("&euro;","&#8364;")
+            .put("&copy;","&#169;")
+            .put("&reg;","&#174;")
+            .build();
 
     @Override
     public File generatePdfToFile(String themeContent, String documentContent, String styles, String resourcesPath) throws IOException {
@@ -33,10 +49,17 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
         }
     }
 
+    private static String replaceHtmlEntitiesNamesWithNumbers(String xhtml) {
+        for (Map.Entry<String, String> entry: replacementMap.entrySet()) {
+            xhtml = xhtml.replace(entry.getKey(), entry.getValue());
+        }
+        return xhtml;
+    }
+
     private static String htmlToXhtml(String inputHTML) {
         Document document = Jsoup.parse(inputHTML, "UTF-8");
         document.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
-        return document.html();
+        return replaceHtmlEntitiesNamesWithNumbers(document.html());
     }
 
     private static ITextRenderer prepareRenderer(String html, String resourcesPath) throws IOException{
