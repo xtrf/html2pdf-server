@@ -16,18 +16,18 @@ import java.util.Map;
 @Component
 public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
     static final Map<String, String> replacementMap = ImmutableMap.<String, String>builder()
-            .put("&nbsp;","&#160;")
-            .put("&lt;","&#60;")
-            .put("&gt;","&#62;")
-            .put("&amp;","&#38;")
-            .put("&quot;","&#34;")
-            .put("&apos;","&#39;")
-            .put("&cent;","&#162;")
-            .put("&pound;","&#163;")
-            .put("&yen;","&#165;")
-            .put("&euro;","&#8364;")
-            .put("&copy;","&#169;")
-            .put("&reg;","&#174;")
+            .put("&nbsp;", "&#160;")
+            .put("&lt;", "&#60;")
+            .put("&gt;", "&#62;")
+            .put("&amp;", "&#38;")
+            .put("&quot;", "&#34;")
+            .put("&apos;", "&#39;")
+            .put("&cent;", "&#162;")
+            .put("&pound;", "&#163;")
+            .put("&yen;", "&#165;")
+            .put("&euro;", "&#8364;")
+            .put("&copy;", "&#169;")
+            .put("&reg;", "&#174;")
             .build();
 
     @Override
@@ -35,7 +35,6 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
         prepareStylesFile(styles, resourcesPath);
 
         File tempPdfFile = File.createTempFile("generated_", ".pdf");
-
         String pageWithTheme = themeContent.replace("#DOCUMENT_CONTENT", documentContent);
 
         htmlToPdf(pageWithTheme, tempPdfFile, resourcesPath);
@@ -50,7 +49,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
     }
 
     private static String replaceHtmlEntitiesNamesWithNumbers(String xhtml) {
-        for (Map.Entry<String, String> entry: replacementMap.entrySet()) {
+        for (Map.Entry<String, String> entry : replacementMap.entrySet()) {
             xhtml = xhtml.replace(entry.getKey(), entry.getValue());
         }
         return xhtml;
@@ -62,7 +61,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
         return replaceHtmlEntitiesNamesWithNumbers(document.html());
     }
 
-    private static ITextRenderer prepareRenderer(String html, String resourcesPath) throws IOException{
+    private static ITextRenderer prepareRenderer(String html, String resourcesPath) throws IOException {
         ITextRenderer renderer = new ITextRenderer();
         SharedContext sharedContext = renderer.getSharedContext();
         sharedContext.setPrint(true);
@@ -70,7 +69,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
         sharedContext.setUserAgentCallback(new ConverterOpenPdfUserAgent(renderer.getOutputDevice(), sharedContext));
         sharedContext.getTextRenderer().setSmoothingThreshold(0);
         // this path to fonts directory works only inside docker, for local execution change to: ./src/main/resources/fonts
-        renderer.getFontResolver().addFontDirectory("/fonts", true); // TODO: move path to configuration file
+        renderer.getFontResolver().addFont("/fonts/Arial.ttf", "Identity-H", true); // TODO: move path to configuration file
         renderer.setDocumentFromString(htmlToXhtml(html), resourcesPath);
         renderer.layout();
 
