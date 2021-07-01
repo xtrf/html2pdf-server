@@ -6,12 +6,13 @@ import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.pdf.ITextRenderer;
+import org.xhtmlrenderer.resource.XMLResource;
+import org.xml.sax.InputSource;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Map;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Component
 public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
@@ -35,7 +36,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
         prepareStylesFile(styles, resourcesPath);
 
         File tempPdfFile = File.createTempFile("generated_", ".pdf");
-
+        documentContent += "<p>\u0104dddru&#261</p>";
         String pageWithTheme = themeContent.replace("#DOCUMENT_CONTENT", documentContent);
 
         htmlToPdf(pageWithTheme, tempPdfFile, resourcesPath);
@@ -70,7 +71,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
         sharedContext.setUserAgentCallback(new ConverterOpenPdfUserAgent(renderer.getOutputDevice(), sharedContext));
         sharedContext.getTextRenderer().setSmoothingThreshold(0);
         // this path to fonts directory works only inside docker, for local execution change to: ./src/main/resources/fonts
-        renderer.getFontResolver().addFontDirectory("/fonts", true); // TODO: move path to configuration file
+        renderer.getFontResolver().addFont("/fonts/Arial.ttf", "Identity-H", true); // TODO: move path to configuration file
         renderer.setDocumentFromString(htmlToXhtml(html), resourcesPath);
         renderer.layout();
 
