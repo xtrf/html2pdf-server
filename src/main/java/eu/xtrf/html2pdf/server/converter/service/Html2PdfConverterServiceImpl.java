@@ -18,18 +18,18 @@ import java.util.Map;
 @Component
 public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
     static final Map<String, String> replacementMap = ImmutableMap.<String, String>builder()
-            .put("&nbsp;", "&#160;")
-            .put("&lt;", "&#60;")
-            .put("&gt;", "&#62;")
-            .put("&amp;", "&#38;")
-            .put("&quot;", "&#34;")
-            .put("&apos;", "&#39;")
-            .put("&cent;", "&#162;")
-            .put("&pound;", "&#163;")
-            .put("&yen;", "&#165;")
-            .put("&euro;", "&#8364;")
-            .put("&copy;", "&#169;")
-            .put("&reg;", "&#174;")
+            .put("&nbsp;","&#160;")
+            .put("&lt;","&#60;")
+            .put("&gt;","&#62;")
+            .put("&amp;","&#38;")
+            .put("&quot;","&#34;")
+            .put("&apos;","&#39;")
+            .put("&cent;","&#162;")
+            .put("&pound;","&#163;")
+            .put("&yen;","&#165;")
+            .put("&euro;","&#8364;")
+            .put("&copy;","&#169;")
+            .put("&reg;","&#174;")
             .build();
 
     private static final Map<String, String> fontFamilies = ImmutableMap.<String, String>builder()
@@ -54,6 +54,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
         prepareStylesFile(styles, resourcesPath);
 
         File tempPdfFile = File.createTempFile("generated_", ".pdf");
+
         String pageWithTheme = themeContent.replace("#DOCUMENT_CONTENT", documentContent);
 
         htmlToPdf(pageWithTheme, tempPdfFile, resourcesPath);
@@ -68,7 +69,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
     }
 
     private static String replaceHtmlEntitiesNamesWithNumbers(String xhtml) {
-        for (Map.Entry<String, String> entry : replacementMap.entrySet()) {
+        for (Map.Entry<String, String> entry: replacementMap.entrySet()) {
             xhtml = xhtml.replace(entry.getKey(), entry.getValue());
         }
         return xhtml;
