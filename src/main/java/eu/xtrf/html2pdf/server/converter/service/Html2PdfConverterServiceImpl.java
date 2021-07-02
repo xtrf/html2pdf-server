@@ -104,7 +104,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
 
     private static void loadFontsToRenderer(ITextRenderer renderer) throws IOException {
         // this path to fonts directory works only inside docker, for local execution change to: ./src/main/resources/fonts
-        for (String ttfPath : getTTFFiles("./src/main/resources/fonts")) { // TODO: move path to configuration file
+        for (String ttfPath : getTTFFiles("/fonts")) { // TODO: move path to configuration file
             String fontFamilyToOverride = findFamilyFont(ttfPath);
             if (fontFamilyToOverride != null) {
                 renderer.getFontResolver().addFont(ttfPath, fontFamilyToOverride, "Identity-H", true, null);
