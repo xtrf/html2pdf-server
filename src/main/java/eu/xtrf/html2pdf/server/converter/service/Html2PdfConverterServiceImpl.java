@@ -34,8 +34,8 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
     private final ITextRenderer renderer;
 
     @Autowired
-    public Html2PdfConverterServiceImpl(FontService fontService) throws IOException {
-        renderer = prepareRenderer(fontService);
+    public Html2PdfConverterServiceImpl(RendererProvider rendererProvider) throws IOException{
+        this.renderer = rendererProvider.prepareRenderer();
     }
 
     @Override
@@ -68,19 +68,6 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
         Document document = Jsoup.parse(inputHTML, "UTF-8");
         document.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
         return replaceHtmlEntitiesNamesWithNumbers(document.html());
-    }
-
-    private ITextRenderer prepareRenderer(FontService fontService) throws IOException {
-        ITextRenderer renderer = new ITextRenderer();
-        SharedContext sharedContext = renderer.getSharedContext();
-        sharedContext.setPrint(true);
-        sharedContext.setInteractive(false);
-        sharedContext.setUserAgentCallback(new ConverterOpenPdfUserAgent(renderer.getOutputDevice(), sharedContext));
-        sharedContext.getTextRenderer().setSmoothingThreshold(0);
-
-        fontService.loadFontsToRenderer(renderer);
-
-        return renderer;
     }
 
     private void htmlToPdf(String html, File outputPdf, String resourcesPath) throws IOException {
