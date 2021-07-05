@@ -3,6 +3,7 @@ package eu.xtrf.html2pdf.server.converter.service;
 import com.google.common.collect.ImmutableMap;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.pdf.ITextRenderer;
@@ -30,11 +31,19 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
             .put("&reg;", "&#174;")
             .build();
 
+    private final ITextRenderer renderer;
+
+    @Autowired
+    public Html2PdfConverterServiceImpl(RendererProvider rendererProvider) throws IOException{
+        this.renderer = rendererProvider.prepareRenderer();
+    }
+
     @Override
     public File generatePdfToFile(String themeContent, String documentContent, String styles, String resourcesPath) throws IOException {
         prepareStylesFile(styles, resourcesPath);
 
         File tempPdfFile = File.createTempFile("generated_", ".pdf");
+
         String pageWithTheme = themeContent.replace("#DOCUMENT_CONTENT", documentContent);
 
         htmlToPdf(pageWithTheme, tempPdfFile, resourcesPath);
@@ -61,23 +70,9 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
         return replaceHtmlEntitiesNamesWithNumbers(document.html());
     }
 
-    private static ITextRenderer prepareRenderer(String html, String resourcesPath) throws IOException {
-        ITextRenderer renderer = new ITextRenderer();
-        SharedContext sharedContext = renderer.getSharedContext();
-        sharedContext.setPrint(true);
-        sharedContext.setInteractive(false);
-        sharedContext.setUserAgentCallback(new ConverterOpenPdfUserAgent(renderer.getOutputDevice(), sharedContext));
-        sharedContext.getTextRenderer().setSmoothingThreshold(0);
-        // this path to fonts directory works only inside docker, for local execution change to: ./src/main/resources/fonts
-        renderer.getFontResolver().addFont("/fonts/Arial.ttf", "Identity-H", true); // TODO: move path to configuration file
+    private void htmlToPdf(String html, File outputPdf, String resourcesPath) throws IOException {
         renderer.setDocumentFromString(htmlToXhtml(html), resourcesPath);
         renderer.layout();
-
-        return renderer;
-    }
-
-    private static void htmlToPdf(String html, File outputPdf, String resourcesPath) throws IOException {
-        ITextRenderer renderer = prepareRenderer(html, resourcesPath);
         try (OutputStream outputStream = new FileOutputStream(outputPdf)) {
             renderer.createPDF(outputStream);
         }
