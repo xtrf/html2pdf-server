@@ -99,7 +99,7 @@ public class Html2PdfController {
 
     private void saveResource(String dirPath, ResourceDto dto) {
         byte[] data = Base64.decodeBase64(dto.getData());
-        try (OutputStream os = new FileOutputStream(dirPath + File.separator + dto.getUid())) {
+        try (OutputStream os = new FileOutputStream(dirPath + File.separator + dto.getFilename())) {
             os.write(data);
         } catch (IOException exception) {
             throw new ProcessingFailureException();

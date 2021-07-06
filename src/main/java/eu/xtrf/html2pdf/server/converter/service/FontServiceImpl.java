@@ -26,13 +26,20 @@ public class FontServiceImpl implements FontService {
     @Override
     public void loadFontsToRenderer(ITextRenderer renderer) throws IOException {
         // this path to fonts directory works only inside docker, for local execution change to: ./src/main/resources/fonts
-        for (String ttfPath : getTTFFiles("/fonts")) { // TODO: move path to configuration file
-            String fontFamilyToOverride = findFamilyFont(ttfPath);
+        for (File ttfFile : getTTFFiles("./src/main/resources/fonts")) { // TODO: move path to configuration file
+            String fontFamilyToOverride = findFamilyFont(ttfFile.getAbsolutePath());
             if (fontFamilyToOverride != null) {
-                renderer.getFontResolver().addFont(ttfPath, fontFamilyToOverride, "Identity-H", true, null);
+                renderer.getFontResolver().addFont(ttfFile.getAbsolutePath(), fontFamilyToOverride, "Identity-H", true, null);
             } else {
-                renderer.getFontResolver().addFont(ttfPath, "Identity-H", true);
+                renderer.getFontResolver().addFont(ttfFile.getAbsolutePath(), "Identity-H", true);
             }
+        }
+    }
+
+    @Override
+    public void loadFontsToRenderer(String dir, ITextRenderer renderer) throws IOException {
+        for (File ttfFile : getTTFFiles(dir)) {
+            renderer.getFontResolver().addFont(ttfFile.getAbsolutePath(), "Identity-H", true);
         }
     }
 
@@ -45,17 +52,17 @@ public class FontServiceImpl implements FontService {
         return null;
     }
 
-    private static List<String> getTTFFiles(String dir) {
+    private static List<File> getTTFFiles(String dir) {
         File fontsDir = new File(dir);
-        List<String> ttfFilesPaths = new LinkedList<>();
+        List<File> ttfFiles = new LinkedList<>();
 
         for (File file : fontsDir.listFiles()) {
             if (file.getName().endsWith(".ttf")) {
-                ttfFilesPaths.add(file.getAbsolutePath());
+                ttfFiles.add(file);
             } else if (file.isDirectory()) {
-                ttfFilesPaths.addAll(getTTFFiles(file.getAbsolutePath()));
+                ttfFiles.addAll(getTTFFiles(file.getAbsolutePath()));
             }
         }
-        return ttfFilesPaths;
+        return ttfFiles;
     }
 }

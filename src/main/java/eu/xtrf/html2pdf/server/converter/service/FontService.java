@@ -6,4 +6,5 @@ import java.io.IOException;
 
 public interface FontService {
     void loadFontsToRenderer(ITextRenderer renderer) throws IOException;
+    void loadFontsToRenderer(String dir, ITextRenderer renderer) throws IOException;
 }
