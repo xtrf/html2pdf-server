@@ -5,6 +5,7 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,5 +22,6 @@ public class ConvertDocumentRequestDto {
     String clientId;
     String styles;
     @Builder.Default
+    @Valid
     Collection<ResourceDto> resources = Collections.emptyList();
 }

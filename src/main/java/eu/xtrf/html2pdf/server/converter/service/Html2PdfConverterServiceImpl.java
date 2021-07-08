@@ -5,7 +5,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import java.io.File;
@@ -31,22 +30,26 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
             .put("&reg;", "&#174;")
             .build();
 
-    private final ITextRenderer renderer;
+    private final RendererProvider rendererProvider;
+    private final FontService fontService;
 
     @Autowired
-    public Html2PdfConverterServiceImpl(RendererProvider rendererProvider) throws IOException{
-        this.renderer = rendererProvider.prepareRenderer();
+    public Html2PdfConverterServiceImpl(RendererProvider rendererProvider, FontService fontService) {
+        this.rendererProvider = rendererProvider;
+        this.fontService = fontService;
     }
 
     @Override
     public File generatePdfToFile(String themeContent, String documentContent, String styles, String resourcesPath) throws IOException {
         prepareStylesFile(styles, resourcesPath);
+        ITextRenderer renderer = rendererProvider.prepareRenderer();
+        fontService.loadFontsToRenderer(resourcesPath, renderer);
 
         File tempPdfFile = File.createTempFile("generated_", ".pdf");
 
         String pageWithTheme = themeContent.replace("#DOCUMENT_CONTENT", documentContent);
 
-        htmlToPdf(pageWithTheme, tempPdfFile, resourcesPath);
+        htmlToPdf(renderer, pageWithTheme, tempPdfFile, resourcesPath);
 
         return tempPdfFile;
     }
@@ -70,7 +73,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
         return replaceHtmlEntitiesNamesWithNumbers(document.html());
     }
 
-    private void htmlToPdf(String html, File outputPdf, String resourcesPath) throws IOException {
+    private void htmlToPdf(ITextRenderer renderer, String html, File outputPdf, String resourcesPath) throws IOException {
         renderer.setDocumentFromString(htmlToXhtml(html), resourcesPath);
         renderer.layout();
         try (OutputStream outputStream = new FileOutputStream(outputPdf)) {
