@@ -102,7 +102,7 @@ public class Html2PdfController {
         try (OutputStream os = new FileOutputStream(dirPath + File.separator + dto.getFilename())) {
             os.write(data);
         } catch (IOException exception) {
-            throw new ProcessingFailureException();
+            throw new ProcessingFailureException(exception.getMessage());
         }
     }
 }
