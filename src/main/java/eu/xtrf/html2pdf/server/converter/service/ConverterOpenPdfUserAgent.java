@@ -7,29 +7,43 @@ import org.xhtmlrenderer.pdf.ITextUserAgent;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 public class ConverterOpenPdfUserAgent extends ITextUserAgent {
 
-    public ConverterOpenPdfUserAgent(ITextOutputDevice outputDevice, SharedContext sharedContext) {
+    private final String resourcePath;
+
+    public ConverterOpenPdfUserAgent(ITextOutputDevice outputDevice, SharedContext sharedContext, String resourcePath) {
         super(outputDevice);
         setSharedContext(sharedContext);
+        this.resourcePath = resourcePath;
     }
 
 
     @Override
     protected InputStream resolveAndOpenStream(String uri) {
-        try {
-            File file = new File(uri);
-            if (file.exists()) {
+        File file = new File(uri);
+        if (file.exists()) {
+            try {
                 return new FileInputStream(new File(uri));
-            } else {
-                return new URL(uri).openStream();
+            } catch (IOException e) {
+                throw new ProcessingFailureException(e.getMessage());
             }
-        } catch (Exception e2) {
-            throw new ProcessingFailureException();
+        } else {
+            try {
+                return new URL(uri).openStream();
+            } catch (MalformedURLException e) {
+                throw new ProcessingFailureException("URL " + removeResourceSubPath(uri) + " malformed.");
+            } catch (IOException e) {
+                throw new ProcessingFailureException(e.getMessage());
+            }
         }
+    }
 
+    private String removeResourceSubPath(String path) {
+        return path.replace(resourcePath, "");
     }
 }

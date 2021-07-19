@@ -42,7 +42,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
     @Override
     public File generatePdfToFile(String themeContent, String documentContent, String styles, String resourcesPath) throws IOException {
         prepareStylesFile(styles, resourcesPath);
-        ITextRenderer renderer = rendererProvider.prepareRenderer();
+        ITextRenderer renderer = rendererProvider.prepareRenderer(resourcesPath);
         fontService.loadFontsToRenderer(resourcesPath, renderer);
 
         File tempPdfFile = File.createTempFile("generated_", ".pdf");
