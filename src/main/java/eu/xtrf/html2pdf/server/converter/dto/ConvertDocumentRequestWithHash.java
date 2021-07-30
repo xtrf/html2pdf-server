@@ -8,25 +8,29 @@ import java.util.stream.Collectors;
 @Value
 public class ConvertDocumentRequestWithHash {
     private ConvertDocumentRequestDto convertDocumentRequestDto;
+    private int requestCounter;
     private String requestHash;
 
-    public ConvertDocumentRequestWithHash(ConvertDocumentRequestDto convertDocumentRequestDto) {
+
+    public ConvertDocumentRequestWithHash(ConvertDocumentRequestDto convertDocumentRequestDto, int requestCounter) {
         this.convertDocumentRequestDto = new ConvertDocumentRequestDto(convertDocumentRequestDto.getDocumentContent(),
                 convertDocumentRequestDto.getThemeContent(),
                 convertDocumentRequestDto.getClientId(),
                 convertDocumentRequestDto.getStyles(),
                 convertDocumentRequestDto.getResources());
-        requestHash = computeRequestHash(convertDocumentRequestDto);
+        this.requestCounter = requestCounter;
+        requestHash = computeRequestHash();
     }
 
 
-    private String computeRequestHash(ConvertDocumentRequestDto convertDocumentRequestDto) {
+    private String computeRequestHash() {
         return DigestUtils.sha1Hex(convertDocumentRequestDto.getClientId() +
                 convertDocumentRequestDto.getThemeContent() +
                 convertDocumentRequestDto.getDocumentContent() +
                 convertDocumentRequestDto.getResources().stream()
                         .map(ConvertDocumentRequestWithHash::getResourceDtoHash)
-                        .collect(Collectors.joining()));
+                        .collect(Collectors.joining()) +
+                requestCounter);
     }
 
     private static String getResourceDtoHash(ResourceDto resourceDto) {

@@ -26,7 +26,7 @@ public class FontServiceImpl implements FontService {
     @Override
     public void loadFontsToRenderer(ITextRenderer renderer) throws IOException {
         // this path to fonts directory works only inside docker, for local execution change to: ./src/main/resources/fonts
-        for (File ttfFile : getTTFFiles("/fonts")) { // TODO: move path to configuration file
+        for (File ttfFile : getTTFFiles("./src/main/resources/fonts")) { // TODO: move path to configuration file
             String fontFamilyToOverride = findFamilyFont(ttfFile.getAbsolutePath());
             if (fontFamilyToOverride != null) {
                 renderer.getFontResolver().addFont(ttfFile.getAbsolutePath(), fontFamilyToOverride, "Identity-H", true, null);
@@ -38,6 +38,7 @@ public class FontServiceImpl implements FontService {
 
     @Override
     public void loadFontsToRenderer(String dir, ITextRenderer renderer) throws IOException {
+
         for (File ttfFile : getTTFFiles(dir)) {
             renderer.getFontResolver().addFont(ttfFile.getAbsolutePath(), "Identity-H", true);
         }
