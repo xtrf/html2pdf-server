@@ -22,11 +22,13 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RestController
 @Slf4j
 public class Html2PdfController {
     private final Html2PdfConverterService converterService;
+    private AtomicInteger requestCounter = new AtomicInteger();
 
     @Autowired
     public Html2PdfController(Html2PdfConverterService converterService) {
@@ -35,7 +37,7 @@ public class Html2PdfController {
 
     @PostMapping(path = "/v1/convert")
     public ResponseEntity convertDocument(@Valid @RequestBody ConvertDocumentRequestDto dto) {
-        return convertDocument(new ConvertDocumentRequestWithHash(dto));
+        return convertDocument(new ConvertDocumentRequestWithHash(dto, requestCounter.incrementAndGet()));
     }
 
     private ResponseEntity convertDocument(ConvertDocumentRequestWithHash dto) {
