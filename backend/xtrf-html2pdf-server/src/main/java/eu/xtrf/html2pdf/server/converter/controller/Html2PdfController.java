@@ -35,6 +35,11 @@ public class Html2PdfController {
         this.converterService = converterService;
     }
 
+    @GetMapping("")
+    public String getHome() {
+        return "xtrf to html home";
+    }
+
     @PostMapping(path = "/v1/convert")
     public ResponseEntity convertDocument(@Valid @RequestBody ConvertDocumentRequestDto dto) {
         return convertDocument(new ConvertDocumentRequestWithHash(dto, requestCounter.incrementAndGet()));
