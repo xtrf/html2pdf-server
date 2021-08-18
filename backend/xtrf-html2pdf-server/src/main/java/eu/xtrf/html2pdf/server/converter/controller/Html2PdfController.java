@@ -42,36 +42,11 @@ public class Html2PdfController {
 
     @PostMapping(path = "/v1/convert")
     public ResponseEntity convertDocument(@Valid @RequestBody ConvertDocumentRequestDto dto) {
-        return convertDocument(new ConvertDocumentRequestWithHash(dto, requestCounter.incrementAndGet()));
-    }
-
-    private ResponseEntity convertDocument(ConvertDocumentRequestWithHash dto) {
         try {
-            StopWatch stopWatch = new StopWatch();
-            stopWatch.start();
-            String resourcesPath = prepareResourcesDir(dto);
-            File tempPdfFile = converterService.generatePdfToFile(dto.getConvertDocumentRequestDto().getThemeContent(),
-                    dto.getConvertDocumentRequestDto().getDocumentContent(),
-                    dto.getConvertDocumentRequestDto().getStyles(),
-                    resourcesPath);
-            stopWatch.stop();
-
-            log.info(String.format(
-                    "[%s] Rendered document for request %s in %s",
-                    dto.getConvertDocumentRequestDto().getClientId(), dto.getRequestHash(), Duration.ofNanos(stopWatch.getNanoTime()).toString()));
-
-            return buildResponse(tempPdfFile);
+            return buildResponse(converterService.generatePdfToFile(dto));
         } catch (Exception ex) {
-            log.warn(String.format("[%s] Unable to process a request %s: %s", dto.getConvertDocumentRequestDto().getClientId(), dto.getRequestHash(), ex.getMessage()));
-
             return new ResponseEntity(String.format("Unable to process the request, error: %s", ex.getMessage()),
                     HttpStatus.INTERNAL_SERVER_ERROR);
-        } finally {
-            try {
-                clearResources(dto.getRequestHash());
-            } catch (IOException e) {
-                log.warn("Cannot clear resource dir for request " + dto.getRequestHash());
-            }
         }
     }
 
@@ -87,29 +62,5 @@ public class Html2PdfController {
                 .contentLength(resultPdfFile.length())
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .body(pdfFileResource);
-    }
-
-    private String prepareResourcesDir(ConvertDocumentRequestWithHash requestWithHash) throws IOException {
-        String resourcesDirPath = getResourcePath(requestWithHash.getRequestHash());
-        Files.createDirectories(Paths.get(resourcesDirPath));
-        requestWithHash.getConvertDocumentRequestDto().getResources().forEach(resource -> saveResource(resourcesDirPath, resource));
-        return resourcesDirPath;
-    }
-
-    private void clearResources(String requestHash) throws IOException {
-        FileUtils.deleteDirectory(new File(getResourcePath(requestHash)));
-    }
-
-    private String getResourcePath(String requestHash) {
-        return "/tmp/html2pdf" + File.separator + requestHash + File.separator;
-    }
-
-    private void saveResource(String dirPath, ResourceDto dto) {
-        byte[] data = Base64.decodeBase64(dto.getData());
-        try (OutputStream os = new FileOutputStream(dirPath + File.separator + dto.getFilename())) {
-            os.write(data);
-        } catch (IOException exception) {
-            throw new ProcessingFailureException(exception.getMessage());
-        }
     }
 }
