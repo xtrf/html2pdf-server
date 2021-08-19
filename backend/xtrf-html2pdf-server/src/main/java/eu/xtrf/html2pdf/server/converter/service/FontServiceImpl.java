@@ -1,11 +1,14 @@
 package eu.xtrf.html2pdf.server.converter.service;
 
 import com.google.common.collect.ImmutableMap;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -23,10 +26,10 @@ public class FontServiceImpl implements FontService {
             .put("Source_Serif_Pro", "Source Serif Pro")
             .build();
 
+
     @Override
-    public void loadFontsToRenderer(ITextRenderer renderer) throws IOException {
-        // this path to fonts directory works only inside docker, for local execution change to: ./src/main/resources/fonts
-        for (File ttfFile : getTTFFiles("./src/main/resources/fonts")) { // TODO: move path to configuration file
+    public void loadFontsToRendererFromResources(ITextRenderer renderer) throws IOException {
+        for (File ttfFile : getTTFFilesFromResources()) {
             String fontFamilyToOverride = findFamilyFont(ttfFile.getAbsolutePath());
             if (fontFamilyToOverride != null) {
                 renderer.getFontResolver().addFont(ttfFile.getAbsolutePath(), fontFamilyToOverride, "Identity-H", true, null);
@@ -38,7 +41,6 @@ public class FontServiceImpl implements FontService {
 
     @Override
     public void loadFontsToRenderer(String dir, ITextRenderer renderer) throws IOException {
-
         for (File ttfFile : getTTFFiles(dir)) {
             renderer.getFontResolver().addFont(ttfFile.getAbsolutePath(), "Identity-H", true);
         }
@@ -53,7 +55,7 @@ public class FontServiceImpl implements FontService {
         return null;
     }
 
-    private static List<File> getTTFFiles(String dir) {
+    private List<File> getTTFFiles(String dir) {
         File fontsDir = new File(dir);
         List<File> ttfFiles = new LinkedList<>();
 
@@ -65,5 +67,16 @@ public class FontServiceImpl implements FontService {
             }
         }
         return ttfFiles;
+    }
+
+    private List<File> getTTFFilesFromResources() throws IOException {
+        PathMatchingResourcePatternResolver pathMatchingResourcePatternResolver = new PathMatchingResourcePatternResolver();
+        Resource[] resources = pathMatchingResourcePatternResolver.getResources("classpath*:**/html2pdf/fonts/**/*.ttf");
+
+        List<File> files = new ArrayList<>();
+        for (Resource resource : resources) {
+            files.add(resource.getFile());
+        }
+        return files;
     }
 }
