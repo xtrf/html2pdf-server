@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -97,7 +99,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
     }
 
     private String getResourcePath(String requestHash) {
-        return "/tmp/html2pdf" + File.separator + requestHash + File.separator;
+        return new File("/tmp/html2pdf" + File.separator + requestHash + File.separator).getAbsolutePath();
     }
 
     private void saveResource(String dirPath, ResourceDto dto) {
@@ -143,10 +145,20 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
     }
 
     private void htmlToPdf(ITextRenderer renderer, String html, File outputPdf, String resourcesPath) throws IOException {
-        renderer.setDocumentFromString(htmlToXhtml(html), resourcesPath);
+        renderer.setDocumentFromString(htmlToXhtml(html), toUrlString(resourcesPath));
         renderer.layout();
         try (OutputStream outputStream = new FileOutputStream(outputPdf)) {
             renderer.createPDF(outputStream);
         }
     }
+
+    private String toUrlString(String resourcePath) {
+        try {
+            return new File(resourcePath).toURI().toURL().toString();
+        } catch (MalformedURLException e) {
+            log.error("Invalid resourcePath URL");
+            throw new ProcessingFailureException(String.format("Invalid resourcePath URL: %s", e.getMessage()));
+        }
+    }
+
 }
