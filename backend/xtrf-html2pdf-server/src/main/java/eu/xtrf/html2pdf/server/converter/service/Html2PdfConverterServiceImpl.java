@@ -154,10 +154,11 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
 
     private String toUrlString(String resourcePath) {
         try {
-            return new URL("file:/" + resourcePath + "/").toString();
+            return new File(resourcePath).toURI().toURL().toString();
         } catch (MalformedURLException e) {
             log.error("Invalid resourcePath URL");
             throw new ProcessingFailureException(String.format("Invalid resourcePath URL: %s", e.getMessage()));
         }
     }
+
 }
