@@ -41,7 +41,7 @@ public class FontServiceImpl implements FontService {
 
     @Override
     public void loadFontsToRenderer(String dir, ITextRenderer renderer) throws IOException {
-        for (File ttfFile : getTTFFiles(dir)) {
+        for (File ttfFile : getTTFOTFFiles(dir)) {
             renderer.getFontResolver().addFont(ttfFile.getAbsolutePath(), "Identity-H", true);
         }
     }
@@ -55,15 +55,15 @@ public class FontServiceImpl implements FontService {
         return null;
     }
 
-    private List<File> getTTFFiles(String dir) {
+    private List<File> getTTFOTFFiles(String dir) {
         File fontsDir = new File(dir);
         List<File> ttfFiles = new LinkedList<>();
 
         for (File file : fontsDir.listFiles()) {
-            if (file.getName().endsWith(".ttf")) {
+            if (file.getName().endsWith(".ttf") || file.getName().endsWith(".otf")) {
                 ttfFiles.add(file);
             } else if (file.isDirectory()) {
-                ttfFiles.addAll(getTTFFiles(file.getAbsolutePath()));
+                ttfFiles.addAll(getTTFOTFFiles(file.getAbsolutePath()));
             }
         }
         return ttfFiles;
