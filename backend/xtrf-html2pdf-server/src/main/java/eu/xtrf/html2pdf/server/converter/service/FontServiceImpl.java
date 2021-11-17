@@ -4,9 +4,11 @@ import com.google.common.collect.ImmutableMap;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
+import org.springframework.util.FileCopyUtils;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -28,8 +30,8 @@ public class FontServiceImpl implements FontService {
 
 
     @Override
-    public void loadFontsToRendererFromResources(ITextRenderer renderer) throws IOException {
-        for (File ttfFile : getTTFFilesFromResources()) {
+    public void loadFontsToRendererFromResources(ITextRenderer renderer, String resourcePath) throws IOException {
+        for (File ttfFile : getTTFFilesFromResources(resourcePath)) {
             String fontFamilyToOverride = findFamilyFont(ttfFile.getAbsolutePath());
             if (fontFamilyToOverride != null) {
                 renderer.getFontResolver().addFont(ttfFile.getAbsolutePath(), fontFamilyToOverride, "Identity-H", true, null);
@@ -69,13 +71,19 @@ public class FontServiceImpl implements FontService {
         return ttfFiles;
     }
 
-    private List<File> getTTFFilesFromResources() throws IOException {
+    private List<File> getTTFFilesFromResources(String resourcePath) throws IOException {
         PathMatchingResourcePatternResolver pathMatchingResourcePatternResolver = new PathMatchingResourcePatternResolver();
         Resource[] resources = pathMatchingResourcePatternResolver.getResources("classpath*:**/html2pdf/fonts/**/*.ttf");
 
         List<File> files = new ArrayList<>();
         for (Resource resource : resources) {
-            files.add(resource.getFile());
+            byte[] data = FileCopyUtils.copyToByteArray(resource.getInputStream());
+            File newFontFile = new File(resourcePath + File.separator + resource.getFilename());
+
+            try (FileOutputStream os = new FileOutputStream(newFontFile)) {
+                os.write(data);
+            }
+            files.add(newFontFile);
         }
         return files;
     }
