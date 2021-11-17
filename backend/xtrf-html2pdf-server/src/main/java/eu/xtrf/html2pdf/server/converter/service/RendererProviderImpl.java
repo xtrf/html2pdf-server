@@ -25,8 +25,7 @@ public class RendererProviderImpl implements RendererProvider {
         sharedContext.setUserAgentCallback(new ConverterOpenPdfUserAgent(renderer.getOutputDevice(), sharedContext, resourcePath));
         sharedContext.getTextRenderer().setSmoothingThreshold(0);
 
-        fontService.loadFontsToRendererFromResources(renderer);
-
+        fontService.loadFontsToRendererFromResources(renderer, resourcePath);
         return renderer;
     }
 }

@@ -5,6 +5,6 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 import java.io.IOException;
 
 public interface FontService {
-    void loadFontsToRendererFromResources(ITextRenderer renderer) throws IOException;
+    void loadFontsToRendererFromResources(ITextRenderer renderer, String resourcePath) throws IOException;
     void loadFontsToRenderer(String dir, ITextRenderer renderer) throws IOException;
 }
