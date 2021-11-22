@@ -1,14 +1,13 @@
 package eu.xtrf.html2pdf.server.converter.service;
 
 import com.google.common.collect.ImmutableMap;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
-import org.springframework.util.FileCopyUtils;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -16,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@Slf4j
 public class FontServiceImpl implements FontService {
     private static final Map<String, String> fontFamilies = ImmutableMap.<String, String>builder()
             .put("Lato", "Lato")
@@ -77,14 +77,13 @@ public class FontServiceImpl implements FontService {
 
         List<File> files = new ArrayList<>();
         for (Resource resource : resources) {
-            byte[] data = FileCopyUtils.copyToByteArray(resource.getInputStream());
-            File newFontFile = new File(resourcePath + File.separator + resource.getFilename());
-
-            try (FileOutputStream os = new FileOutputStream(newFontFile)) {
-                os.write(data);
+            try {
+                files.add(resource.getFile());
+            } catch(Exception e) {
+                log.warn("Font file " + resource.getFilename() + " cannot be loaded. (This is expected only for integration tests)");
             }
-            files.add(newFontFile);
         }
+
         return files;
     }
 }
