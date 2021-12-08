@@ -24,11 +24,22 @@ pipeline {
         GITHUB_CONTEXT = 'xtrf-jenkins'
     }
     parameters {
+        booleanParam(name: 'WIPE_OUT', defaultValue: false, description: 'Do you want to wipe out workspace?')
         booleanParam(name: 'RELEASE', defaultValue: false, description: 'You wanna release or just build a thing?')
         booleanParam(name: 'DEPLOY', defaultValue: false, description: 'You wanna deploy a thing?')
         choice(name: 'VERSION', choices: ['PATCH', 'MINOR', 'MAJOR'], description: 'Which version?')
     }
     stages {
+        stage('Clean Workspace') {
+             when {
+                expression {
+                    params.WIPE_OUT == true
+                }
+            }
+            steps {
+                step([$class: 'WsCleanup'])
+            }
+        }
         stage('Echo Parameters') {
             steps {
                 echo "Hello ${params.RELEASE}"
