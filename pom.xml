@@ -39,8 +39,8 @@
 	</repositories>
 
 	<scm>
-		<connection>scm:git:ssh://git@github.com:xtrf/html2pdf-server.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com:xtrf/html2pdf-server.git</developerConnection>
+		<connection>scm:git:ssh://git@github.com/xtrf/html2pdf-server.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/xtrf/html2pdf-server.git</developerConnection>
 		<tag>master</tag>
 	</scm>
 
