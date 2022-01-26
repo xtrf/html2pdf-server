@@ -2,14 +2,11 @@ package eu.xtrf.html2pdf.server.converter.dto;
 
 import lombok.Value;
 
-import javax.validation.constraints.NotNull;
-
 
 @Value
 public class ResourceDto {
     String uid;
     String data;
-    @NotNull
     ResourceType type;
 
     public String getFilename() {
