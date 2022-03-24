@@ -23,17 +23,9 @@
 		<maven.site.deploy.skip>true</maven.site.deploy.skip>
 		<xtrf.test.utils.version>10.0.0-SNAPSHOT</xtrf.test.utils.version>
 
-		<apache.commons.lang3.version>3.1</apache.commons.lang3.version>
-		<apache.commons.email.version>1.3.1</apache.commons.email.version>
-		<commons.io.version>2.8.0</commons.io.version>
-		<commons.codec.version>1.15</commons.codec.version>
-		<guava.version>30.0-jre</guava.version>
-		<lombok.version>1.18.20</lombok.version>
-		<jsoup.version>1.14.2</jsoup.version>
 		<flying.saucer.pdf.openpdf.version>9.1.22</flying.saucer.pdf.openpdf.version>
-		<jackson.databind.version>2.12.1</jackson.databind.version>
 		<junit.jupiter.api.version>5.6.2</junit.jupiter.api.version>
-		<spring.boot.starter.version>2.2.1.RELEASE</spring.boot.starter.version>
+		<spring.boot.starter.version>2.6.3</spring.boot.starter.version>
 	</properties>
 
 	<repositories>
