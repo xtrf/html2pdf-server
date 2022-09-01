@@ -77,7 +77,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
         } catch (Exception ex) {
             log.warn(String.format("[%s] Unable to process a request %s: %s", dtoWithHash.getConvertDocumentRequestDto().getClientId(), dtoWithHash.getRequestHash(), ex.getMessage()));
 
-            throw new ProcessingFailureException(String.format("Unable to process the request, error: %s", ex.getMessage()));
+            throw new ProcessingFailureException(String.format("Unable to process the request, error: %s", ex.getMessage()), ex);
         } finally {
             try {
                 clearResources(dtoWithHash.getRequestHash());
@@ -107,7 +107,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
         try (OutputStream os = new FileOutputStream(dirPath + File.separator + dto.getFilename())) {
             os.write(data);
         } catch (IOException exception) {
-            throw new ProcessingFailureException(exception.getMessage());
+            throw new ProcessingFailureException(exception.getMessage(), exception);
         }
     }
 
@@ -157,7 +157,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
             return new File(resourcePath).toURI().toURL().toString();
         } catch (MalformedURLException e) {
             log.error("Invalid resourcePath URL");
-            throw new ProcessingFailureException(String.format("Invalid resourcePath URL: %s", e.getMessage()));
+            throw new ProcessingFailureException(String.format("Invalid resourcePath URL: %s", e.getMessage()), e);
         }
     }
 

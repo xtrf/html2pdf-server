@@ -30,15 +30,15 @@ public class ConverterOpenPdfUserAgent extends ITextUserAgent {
             try {
                 return new FileInputStream(new File(uri));
             } catch (IOException e) {
-                throw new ProcessingFailureException(e.getMessage());
+                throw new ProcessingFailureException(e.getMessage(), e);
             }
         } else {
             try {
                 return new URL(uri).openStream();
             } catch (MalformedURLException e) {
-                throw new ProcessingFailureException("URL " + removeResourceSubPath(uri) + " malformed.");
+                throw new ProcessingFailureException("URL " + removeResourceSubPath(uri) + " malformed.", e);
             } catch (IOException e) {
-                throw new ProcessingFailureException(e.getMessage());
+                throw new ProcessingFailureException(e.getMessage(), e);
             }
         }
     }
