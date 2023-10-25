@@ -16,6 +16,7 @@ public class ConvertDocumentRequestDto {
     String themeContent;
     String clientId;
     String styles;
+    String systemDomain;
     @Builder.Default
     Collection<ResourceDto> resources = Collections.emptyList();
 }

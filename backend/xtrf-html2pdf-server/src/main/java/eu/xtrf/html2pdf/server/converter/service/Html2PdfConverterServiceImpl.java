@@ -66,7 +66,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
             File tempPdfFile = generatePdfToFile(dtoWithHash.getConvertDocumentRequestDto().getThemeContent(),
                     dtoWithHash.getConvertDocumentRequestDto().getDocumentContent(),
                     dtoWithHash.getConvertDocumentRequestDto().getStyles(),
-                    resourcesPath);
+                    resourcesPath, dtoWithHash.getConvertDocumentRequestDto().getSystemDomain());
             stopWatch.stop();
 
             log.info(String.format(
@@ -111,9 +111,9 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
         }
     }
 
-    private File generatePdfToFile(String themeContent, String documentContent, String styles, String resourcesPath) throws IOException {
+    private File generatePdfToFile(String themeContent, String documentContent, String styles, String resourcesPath, String systemDomain) throws IOException {
         prepareStylesFile(styles, resourcesPath);
-        ITextRenderer renderer = rendererProvider.prepareRenderer(resourcesPath);
+        ITextRenderer renderer = rendererProvider.prepareRenderer(resourcesPath, systemDomain);
         fontService.loadFontsToRenderer(resourcesPath, renderer);
 
         File tempPdfFile = File.createTempFile("generated_", ".pdf");
