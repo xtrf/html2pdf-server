@@ -10,7 +10,7 @@ import java.net.ConnectException;
 
 public class ConverterOpenPdfUserAgentTest {
 
-    ConverterOpenPdfUserAgent converterOpenPdfUserAgent = new ConverterOpenPdfUserAgent(null, null, "/res", "xtrf.test.domain");
+    ConverterOpenPdfUserAgent converterOpenPdfUserAgent = new ConverterOpenPdfUserAgent(null, null, "/res", "xtrf.test.domain", "* {font-family: 'Roboto', 'Open Sans', 'Sans Serif'; font-size: 11px;} header {position: running(header);}");
 
     @Test(expectedExceptions = ProcessingFailureException.class,
             expectedExceptionsMessageRegExp = ".* leads to an unauthorized source.")
