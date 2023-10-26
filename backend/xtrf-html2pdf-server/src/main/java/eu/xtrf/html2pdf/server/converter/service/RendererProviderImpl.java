@@ -17,12 +17,12 @@ public class RendererProviderImpl implements RendererProvider {
     }
 
     @Override
-    public ITextRenderer prepareRenderer(String resourcePath, String systemDomain) throws IOException {
+    public ITextRenderer prepareRenderer(String resourcePath, String systemDomain, String styleCss) throws IOException {
         ITextRenderer renderer = new ITextRenderer();
         SharedContext sharedContext = renderer.getSharedContext();
         sharedContext.setPrint(true);
         sharedContext.setInteractive(false);
-        sharedContext.setUserAgentCallback(new ConverterOpenPdfUserAgent(renderer.getOutputDevice(), sharedContext, resourcePath, systemDomain));
+        sharedContext.setUserAgentCallback(new ConverterOpenPdfUserAgent(renderer.getOutputDevice(), sharedContext, resourcePath, systemDomain, styleCss));
         sharedContext.getTextRenderer().setSmoothingThreshold(0);
 
         fontService.loadFontsToRendererFromResources(renderer, resourcePath);
