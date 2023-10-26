@@ -1,6 +1,7 @@
 package eu.xtrf.html2pdf.server.converter.service;
 
 import eu.xtrf.html2pdf.server.converter.exception.ProcessingFailureException;
+import org.apache.commons.io.IOUtils;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.pdf.ITextOutputDevice;
 import org.xhtmlrenderer.pdf.ITextUserAgent;
@@ -13,22 +14,28 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 
 public class ConverterOpenPdfUserAgent extends ITextUserAgent {
 
     private final String resourcePath;
     private final String systemDomain;
+    private final String styleCss;
 
-    public ConverterOpenPdfUserAgent(ITextOutputDevice outputDevice, SharedContext sharedContext, String resourcePath, String systemDomain) {
+    public ConverterOpenPdfUserAgent(ITextOutputDevice outputDevice, SharedContext sharedContext, String resourcePath, String systemDomain, String styleCss) {
         super(outputDevice);
         setSharedContext(sharedContext);
         this.resourcePath = resourcePath;
         this.systemDomain = systemDomain;
+        this.styleCss = styleCss;
     }
 
 
     @Override
     protected InputStream resolveAndOpenStream(String uri) {
+        if (uri.matches("^.*styles.css")) {
+            return IOUtils.toInputStream(styleCss, StandardCharsets.UTF_8);
+        }
         File file = new File(uri);
         if (file.exists()) {
             try {
@@ -39,7 +46,7 @@ public class ConverterOpenPdfUserAgent extends ITextUserAgent {
         } else {
             try {
                 URL url = new URL(uri);
-                if (!isFileFromSystemTmpDir(url) && !isAllowedSource(url)) {
+                if (!isAllowedSource(url)) {
                     throw new ProcessingFailureException("URL " + removeResourceSubPath(uri) + " leads to an unauthorized source.");
                 }
                 return url.openStream();
@@ -77,15 +84,5 @@ public class ConverterOpenPdfUserAgent extends ITextUserAgent {
     private boolean isValidProtocol(URL url) {
         String protocol = url.getProtocol();
         return "http".equals(protocol) || "https".equals(protocol);
-    }
-
-    private boolean isFileFromSystemTmpDir(URL url) {
-        File tmpFile = new File("/tmp");
-        if (tmpFile.exists()) {
-            String tmpDirPath = tmpFile.getAbsolutePath().replace("\\", "/");
-            String urlFilePath = new File(url.getFile()).getPath().replace("\\", "/");
-            return urlFilePath.startsWith(tmpDirPath);
-        }
-        return false;
     }
 }

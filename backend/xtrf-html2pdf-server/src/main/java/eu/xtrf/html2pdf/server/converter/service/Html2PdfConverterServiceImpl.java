@@ -80,7 +80,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
             throw new ProcessingFailureException(String.format("Unable to process the request, error: %s", ex.getMessage()), ex);
         } finally {
             try {
-                clearResources(dtoWithHash.getRequestHash());
+                clearResources(dtoWithHash.getRequestHash(), dto.getTempDirectoryPath());
             } catch (IOException e) {
                 log.warn("Cannot clear resource dir for request " + dtoWithHash.getRequestHash());
             }
@@ -88,18 +88,19 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
     }
 
     private String prepareResourcesDir(ConvertDocumentRequestWithHash requestWithHash) throws IOException {
-        String resourcesDirPath = getResourcePath(requestWithHash.getRequestHash());
+        String resourcesDirPath = getResourcePath(requestWithHash.getRequestHash(), requestWithHash.getConvertDocumentRequestDto().getTempDirectoryPath());
         Files.createDirectories(Paths.get(resourcesDirPath));
         requestWithHash.getConvertDocumentRequestDto().getResources().forEach(resource -> saveResource(resourcesDirPath, resource));
         return resourcesDirPath;
     }
 
-    private void clearResources(String requestHash) throws IOException {
-        FileUtils.deleteDirectory(new File(getResourcePath(requestHash)));
+    private void clearResources(String requestHash, String tempDirectoryPath) throws IOException {
+        FileUtils.deleteDirectory(new File(getResourcePath(requestHash, tempDirectoryPath)));
     }
 
-    private String getResourcePath(String requestHash) {
-        return new File("/tmp/html2pdf" + File.separator + requestHash + File.separator).getAbsolutePath();
+    private String getResourcePath(String requestHash, String tempDirectoryPath) {
+        String tempDirPathWithSeparator = tempDirectoryPath.endsWith(File.separator) ? tempDirectoryPath : tempDirectoryPath + File.separator;
+        return new File(tempDirPathWithSeparator + requestHash + File.separator).getAbsolutePath();
     }
 
     private void saveResource(String dirPath, ResourceDto dto) {
@@ -112,8 +113,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
     }
 
     private File generatePdfToFile(String themeContent, String documentContent, String styles, String resourcesPath, String systemDomain) throws IOException {
-        prepareStylesFile(styles, resourcesPath);
-        ITextRenderer renderer = rendererProvider.prepareRenderer(resourcesPath, systemDomain);
+        ITextRenderer renderer = rendererProvider.prepareRenderer(resourcesPath, systemDomain, styles);
         fontService.loadFontsToRenderer(resourcesPath, renderer);
 
         File tempPdfFile = File.createTempFile("generated_", ".pdf");
@@ -123,12 +123,6 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
         htmlToPdf(renderer, pageWithTheme, tempPdfFile, resourcesPath);
 
         return tempPdfFile;
-    }
-
-    private void prepareStylesFile(String styles, String resourcesPath) throws IOException {
-        try (FileOutputStream fos = new FileOutputStream(new File(resourcesPath + "/styles.css"))) {
-            fos.write(styles.getBytes());
-        }
     }
 
     private static String replaceHtmlEntitiesNamesWithNumbers(String xhtml) {

@@ -5,5 +5,5 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 import java.io.IOException;
 
 public interface RendererProvider {
-    ITextRenderer prepareRenderer(String resourcePath, String systemDomain) throws IOException;
+    ITextRenderer prepareRenderer(String resourcePath, String systemDomain, String styleCss) throws IOException;
 }
