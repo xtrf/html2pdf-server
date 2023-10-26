@@ -33,7 +33,7 @@ public class ConverterOpenPdfUserAgent extends ITextUserAgent {
 
     @Override
     protected InputStream resolveAndOpenStream(String uri) {
-        if (uri.matches("^.*styles.css")) {
+        if (uri.equals("file:" + resourcePath + "styles.css")) {
             return IOUtils.toInputStream(styleCss, StandardCharsets.UTF_8);
         }
         File file = new File(uri);
