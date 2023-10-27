@@ -16,6 +16,7 @@ import static eu.xtrf.test.assertions.ExceptionAssertions.assertException;
 import static eu.xtrf.test.assertions.ExceptionAssertions.catchException;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertLinesMatch;
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 public class ConverterOpenPdfUserAgentTest {
@@ -72,6 +73,6 @@ public class ConverterOpenPdfUserAgentTest {
 
         // then
         String result = new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining("\n"));
-        Assert.assertEquals(result, sampleStyleCss);
+        assertEquals(result, sampleStyleCss);
     }
 }
