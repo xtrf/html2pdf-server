@@ -16,12 +16,10 @@ import org.springframework.stereotype.Service;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -56,7 +54,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
     }
 
     @Override
-    public File generatePdfToFile(ConvertDocumentRequestDto dto) throws IOException {
+    public File generatePdfToFile(ConvertDocumentRequestDto dto) {
         ConvertDocumentRequestWithHash dtoWithHash = new ConvertDocumentRequestWithHash(dto, requestCounter.incrementAndGet());
         try {
             StopWatch stopWatch = new StopWatch();
@@ -87,24 +85,24 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
     }
 
     private String prepareResourcesDir(ConvertDocumentRequestWithHash requestWithHash) throws IOException {
-        String resourcesDirPath = getResourcePath(requestWithHash.getRequestHash(), requestWithHash.getConvertDocumentRequestDto().getTempDirectoryPath());
-        Files.createDirectories(Paths.get(resourcesDirPath));
+        File resourcesDirPath = getResourcePath(requestWithHash.getRequestHash(), requestWithHash.getConvertDocumentRequestDto().getTempDirectoryPath());
+        Files.createDirectories(resourcesDirPath.toPath());
         requestWithHash.getConvertDocumentRequestDto().getResources().forEach(resource -> saveResource(resourcesDirPath, resource));
-        return resourcesDirPath;
+        return resourcesDirPath.getAbsolutePath();
     }
 
     private void clearResources(String requestHash, String tempDirectoryPath) throws IOException {
-        FileUtils.deleteDirectory(new File(getResourcePath(requestHash, tempDirectoryPath)));
+        FileUtils.deleteDirectory(getResourcePath(requestHash, tempDirectoryPath));
     }
 
-    private String getResourcePath(String requestHash, String tempDirectoryPath) {
-        String tempDirPathWithSeparator = tempDirectoryPath.endsWith(File.separator) ? tempDirectoryPath : tempDirectoryPath + File.separator;
-        return tempDirPathWithSeparator + requestHash + File.separator;
+    private File getResourcePath(String requestHash, String tempDirectoryPath) {
+        return new File(tempDirectoryPath, requestHash);
     }
 
-    private void saveResource(String dirPath, ResourceDto dto) {
+    private void saveResource(File dirPath, ResourceDto dto) {
         byte[] data = Base64.decodeBase64(dto.getData());
-        try (OutputStream os = new FileOutputStream(dirPath + File.separator + dto.getFilename())) {
+        File resourcePath = new File(dirPath, dto.getFilename());
+        try (OutputStream os = Files.newOutputStream(resourcePath.toPath())) {
             os.write(data);
         } catch (IOException exception) {
             throw new ProcessingFailureException(exception.getMessage(), exception);
@@ -140,7 +138,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
     private void htmlToPdf(ITextRenderer renderer, String html, File outputPdf, String resourcesPath) throws IOException {
         renderer.setDocumentFromString(htmlToXhtml(html), toUrlString(resourcesPath));
         renderer.layout();
-        try (OutputStream outputStream = new FileOutputStream(outputPdf)) {
+        try (OutputStream outputStream = Files.newOutputStream(outputPdf.toPath())) {
             renderer.createPDF(outputStream);
         }
     }
