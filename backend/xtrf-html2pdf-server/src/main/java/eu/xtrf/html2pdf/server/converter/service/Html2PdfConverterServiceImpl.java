@@ -27,7 +27,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 @Slf4j
 public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
-    private AtomicInteger requestCounter = new AtomicInteger();
+
+    private final AtomicInteger requestCounter = new AtomicInteger();
 
     static final Map<String, String> replacementMap = ImmutableMap.<String, String>builder()
             .put("&nbsp;", "&#160;")
