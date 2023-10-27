@@ -5,6 +5,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -16,7 +17,7 @@ import static eu.xtrf.test.assertions.ExceptionAssertions.catchException;
 
 public class ConverterOpenPdfUserAgentTest {
 
-    String resourcePath = "/c/system\\temp/f829a2090fea6/";
+    String resourcePath = "c/system\\temp/f829a2090fea6";
     String sampleStyleCss = "* {font-family: 'Roboto'; font-size: 11px;}";
     ConverterOpenPdfUserAgent converterOpenPdfUserAgent = new ConverterOpenPdfUserAgent(null, null, resourcePath, "xtrf.test.domain", sampleStyleCss);
 
@@ -61,7 +62,7 @@ public class ConverterOpenPdfUserAgentTest {
     @Test
     public void should_not_throw_unauthorized_source_exception_because_system_tmp_file_resource_url_is_allowed() {
         // given
-        String uri = "file:/" + resourcePath + "styles.css";
+        String uri = "file:" + File.separator + resourcePath + File.separator + "styles.css";
 
         // when
         InputStream inputStream = converterOpenPdfUserAgent.resolveAndOpenStream(uri);
