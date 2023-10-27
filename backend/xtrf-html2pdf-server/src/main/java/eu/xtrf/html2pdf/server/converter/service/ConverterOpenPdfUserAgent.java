@@ -6,8 +6,6 @@ import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.pdf.ITextOutputDevice;
 import org.xhtmlrenderer.pdf.ITextUserAgent;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -29,7 +27,7 @@ public class ConverterOpenPdfUserAgent extends ITextUserAgent {
         this.resourcePath = resourcePath;
         this.systemDomain = systemDomain;
         this.styleCss = styleCss;
-        this.styleCssUri = ("file:" + resourcePath + "styles.css").replace("\\", "/");
+        this.styleCssUri = ("file:/" + resourcePath + "styles.css").replace("\\", "/");
     }
 
 
@@ -38,25 +36,16 @@ public class ConverterOpenPdfUserAgent extends ITextUserAgent {
         if (isStylesCssFileUri(uri)) {
             return IOUtils.toInputStream(styleCss, StandardCharsets.UTF_8);
         }
-        File file = new File(uri);
-        if (file.exists()) {
-            try {
-                return new FileInputStream(new File(uri));
-            } catch (IOException e) {
-                throw new ProcessingFailureException(e.getMessage(), e);
+        try {
+            URL url = new URL(uri);
+            if (!isAllowedSource(url)) {
+                throw new ProcessingFailureException("URL " + removeResourceSubPath(uri) + " leads to an unauthorized source.");
             }
-        } else {
-            try {
-                URL url = new URL(uri);
-                if (!isAllowedSource(url)) {
-                    throw new ProcessingFailureException("URL " + removeResourceSubPath(uri) + " leads to an unauthorized source.");
-                }
-                return url.openStream();
-            } catch (MalformedURLException e) {
-                throw new ProcessingFailureException("URL " + removeResourceSubPath(uri) + " malformed.", e);
-            } catch (IOException e) {
-                throw new ProcessingFailureException(e.getMessage(), e);
-            }
+            return url.openStream();
+        } catch (MalformedURLException e) {
+            throw new ProcessingFailureException("URL " + removeResourceSubPath(uri) + " malformed.", e);
+        } catch (IOException e) {
+            throw new ProcessingFailureException(e.getMessage(), e);
         }
     }
 
