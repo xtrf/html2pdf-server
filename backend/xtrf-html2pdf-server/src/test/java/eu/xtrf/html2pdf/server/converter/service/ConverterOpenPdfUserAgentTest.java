@@ -49,7 +49,7 @@ public class ConverterOpenPdfUserAgentTest {
     @Test
     public void should_not_throw_unauthorized_source_exception_because_system_tmp_file_resource_url_is_allowed() {
         // given
-        String uri = "file:" + resourcePath + "styles.css";
+        String uri = "file:/" + resourcePath + "styles.css";
 
         // when & then (we do not expect unauthorized source only not existing file)
         try {
