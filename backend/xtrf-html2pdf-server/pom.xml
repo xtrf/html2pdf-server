@@ -75,13 +75,16 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>eu.xtrf</groupId>
             <artifactId>xtrf-test-utils</artifactId>
             <version>2.0.1-SNAPSHOT</version>
-            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.6.2</version>
         </dependency>
     </dependencies>
 
