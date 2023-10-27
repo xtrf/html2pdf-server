@@ -12,7 +12,9 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
+
+import static java.lang.String.format;
 
 public class ConverterOpenPdfUserAgent extends ITextUserAgent {
 
@@ -34,18 +36,18 @@ public class ConverterOpenPdfUserAgent extends ITextUserAgent {
     @Override
     protected InputStream resolveAndOpenStream(String uri) {
         if (isStylesCssFileUri(uri)) {
-            return IOUtils.toInputStream(styleCss, StandardCharsets.UTF_8);
+            return IOUtils.toInputStream(styleCss, Charset.defaultCharset());
         }
         try {
             URL url = new URL(uri);
             if (!isAllowedSource(url)) {
-                throw new ProcessingFailureException("URL " + removeResourceSubPath(uri) + " leads to an unauthorized source.");
+                throw new ProcessingFailureException(format("URL %s leads to an unauthorized source.", removeResourceSubPath(uri)));
             }
             return url.openStream();
         } catch (MalformedURLException e) {
-            throw new ProcessingFailureException("URL " + removeResourceSubPath(uri) + " malformed.", e);
+            throw new ProcessingFailureException(format("URL %s malformed.", removeResourceSubPath(uri)));
         } catch (IOException e) {
-            throw new ProcessingFailureException(e.getMessage(), e);
+            throw new ProcessingFailureException(format("IOException when trying to read from %s", removeResourceSubPath(uri)), e);
         }
     }
 
