@@ -20,7 +20,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -100,7 +99,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
 
     private String getResourcePath(String requestHash, String tempDirectoryPath) {
         String tempDirPathWithSeparator = tempDirectoryPath.endsWith(File.separator) ? tempDirectoryPath : tempDirectoryPath + File.separator;
-        return new File(tempDirPathWithSeparator + requestHash + File.separator).getAbsolutePath();
+        return tempDirPathWithSeparator + requestHash + File.separator;
     }
 
     private void saveResource(String dirPath, ResourceDto dto) {

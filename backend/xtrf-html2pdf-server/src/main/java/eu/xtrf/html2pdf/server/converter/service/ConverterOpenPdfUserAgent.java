@@ -21,6 +21,7 @@ public class ConverterOpenPdfUserAgent extends ITextUserAgent {
     private final String resourcePath;
     private final String systemDomain;
     private final String styleCss;
+    private final String styleCssUri;
 
     public ConverterOpenPdfUserAgent(ITextOutputDevice outputDevice, SharedContext sharedContext, String resourcePath, String systemDomain, String styleCss) {
         super(outputDevice);
@@ -28,12 +29,13 @@ public class ConverterOpenPdfUserAgent extends ITextUserAgent {
         this.resourcePath = resourcePath;
         this.systemDomain = systemDomain;
         this.styleCss = styleCss;
+        this.styleCssUri = ("file:" + resourcePath + "styles.css").replace("\\", "/");
     }
 
 
     @Override
     protected InputStream resolveAndOpenStream(String uri) {
-        if (uri.equals("file:" + resourcePath + "styles.css")) {
+        if (isStylesCssFileUri(uri)) {
             return IOUtils.toInputStream(styleCss, StandardCharsets.UTF_8);
         }
         File file = new File(uri);
@@ -84,5 +86,9 @@ public class ConverterOpenPdfUserAgent extends ITextUserAgent {
     private boolean isValidProtocol(URL url) {
         String protocol = url.getProtocol();
         return "http".equals(protocol) || "https".equals(protocol);
+    }
+
+    private boolean isStylesCssFileUri(String uri) {
+        return uri != null && uri.replace("\\", "/").equals(styleCssUri);
     }
 }
