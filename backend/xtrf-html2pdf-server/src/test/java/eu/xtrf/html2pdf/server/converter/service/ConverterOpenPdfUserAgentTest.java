@@ -9,7 +9,7 @@ import java.net.ConnectException;
 
 public class ConverterOpenPdfUserAgentTest {
 
-    String resourcePath = "/c/system/temp/f829a2090fea6/";
+    String resourcePath = "/c/system\\temp/f829a2090fea6/";
     ConverterOpenPdfUserAgent converterOpenPdfUserAgent = new ConverterOpenPdfUserAgent(null, null, resourcePath,
             "xtrf.test.domain", "* {font-family: 'Roboto'; font-size: 11px;}");
 
