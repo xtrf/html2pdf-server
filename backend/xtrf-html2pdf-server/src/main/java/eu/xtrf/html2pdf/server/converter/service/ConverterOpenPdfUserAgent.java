@@ -29,9 +29,8 @@ public class ConverterOpenPdfUserAgent extends ITextUserAgent {
         this.resourcePath = resourcePath;
         this.systemDomain = systemDomain;
         this.styleCss = styleCss;
-        this.styleCssUri = ("file:/" + resourcePath + "styles.css").replace("\\", "/");
+        this.styleCssUri = buildExpectedStylesCssUri(resourcePath);
     }
-
 
     @Override
     protected InputStream resolveAndOpenStream(String uri) {
@@ -81,5 +80,19 @@ public class ConverterOpenPdfUserAgent extends ITextUserAgent {
 
     private boolean isStylesCssFileUri(String uri) {
         return uri != null && uri.replace("\\", "/").equals(styleCssUri);
+    }
+
+    private String buildExpectedStylesCssUri(String originalResourcePath) {
+        String stylesUri = originalResourcePath.replace("\\", "/");
+        StringBuilder path = new StringBuilder();
+        if (stylesUri.startsWith("/")) {
+            path.append("file:").append(stylesUri);
+        } else {
+            path.append("file:/").append(stylesUri);
+        }
+        if (stylesUri.endsWith("/")) {
+            return path.append("styles.css").toString();
+        }
+        return path.append("/styles.css").toString();
     }
 }
