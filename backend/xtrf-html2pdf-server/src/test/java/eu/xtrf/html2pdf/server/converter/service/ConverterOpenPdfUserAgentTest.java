@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 
 import static eu.xtrf.test.assertions.ExceptionAssertions.assertException;
 import static eu.xtrf.test.assertions.ExceptionAssertions.catchException;
+import static java.util.Collections.singletonList;
+import static org.junit.jupiter.api.Assertions.assertLinesMatch;
+import static org.testng.Assert.assertTrue;
 
 public class ConverterOpenPdfUserAgentTest {
 
@@ -31,7 +34,7 @@ public class ConverterOpenPdfUserAgentTest {
 
         // then
         assertException(ProcessingFailureException.class, exception);
-        Assert.assertTrue(exception.getMessage().matches(".* leads to an unauthorized source."));
+        assertTrue(exception.getMessage().matches(".* leads to an unauthorized source."));
     }
 
     @Test
@@ -43,7 +46,7 @@ public class ConverterOpenPdfUserAgentTest {
         Exception exception = catchException(() -> converterOpenPdfUserAgent.resolveAndOpenStream(uri));
 
         // then (we do not expect unauthorized source only not existing file)
-        Assert.assertTrue(exception.getCause() instanceof FileNotFoundException || exception.getCause() instanceof ConnectException);
+        assertTrue(exception.getCause() instanceof FileNotFoundException || exception.getCause() instanceof ConnectException);
     }
 
     @Test
@@ -56,7 +59,7 @@ public class ConverterOpenPdfUserAgentTest {
 
         // then
         assertException(ProcessingFailureException.class, exception);
-        Assert.assertTrue(exception.getMessage().matches(".* leads to an unauthorized source."));
+        assertLinesMatch(singletonList(".* leads to an unauthorized source."), singletonList(exception.getMessage()));
     }
 
     @Test
