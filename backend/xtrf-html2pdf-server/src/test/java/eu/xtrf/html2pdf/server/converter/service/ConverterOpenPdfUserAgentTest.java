@@ -34,7 +34,7 @@ public class ConverterOpenPdfUserAgentTest {
 
         // then
         assertException(ProcessingFailureException.class, exception);
-        assertTrue(exception.getMessage().matches(".* leads to an unauthorized source."));
+        assertLinesMatch(singletonList(".* leads to an unauthorized source."), singletonList(exception.getMessage()));
     }
 
     @Test
