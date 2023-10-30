@@ -18,6 +18,7 @@ public class ConvertDocumentRequestDto {
     String styles;
     String systemDomain;
     String tempDirectoryPath;
+    boolean allowResourcesFromDiskAndExternalDomainForGeneratingDocs;
     @Builder.Default
     Collection<ResourceDto> resources = Collections.emptyList();
 }

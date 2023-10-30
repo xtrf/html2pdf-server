@@ -22,7 +22,7 @@ public class ConverterOpenPdfUserAgentTest {
 
     String resourcePath = "c/system\\temp/f829a2090fea6";
     String sampleStyleCss = "* {font-family: 'Roboto'; font-size: 11px;}";
-    ConverterOpenPdfUserAgent converterOpenPdfUserAgent = new ConverterOpenPdfUserAgent(null, null, resourcePath, "xtrf.test.domain", sampleStyleCss);
+    ConverterOpenPdfUserAgent converterOpenPdfUserAgent = new ConverterOpenPdfUserAgent(null, null, resourcePath, "xtrf.test.domain", sampleStyleCss, false);
 
     @Test
     public void should_throw_exception_because_external_resource_url_is_not_allowed() {
