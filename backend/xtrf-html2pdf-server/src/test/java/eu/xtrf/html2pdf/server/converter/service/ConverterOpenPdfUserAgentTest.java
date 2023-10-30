@@ -11,10 +11,6 @@ import java.io.InputStreamReader;
 import java.net.ConnectException;
 import java.util.stream.Collectors;
 
-import static eu.xtrf.test.assertions.ExceptionAssertions.assertException;
-import static eu.xtrf.test.assertions.ExceptionAssertions.catchException;
-import static java.util.Collections.singletonList;
-import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -24,17 +20,14 @@ public class ConverterOpenPdfUserAgentTest {
     String sampleStyleCss = "* {font-family: 'Roboto'; font-size: 11px;}";
     ConverterOpenPdfUserAgent converterOpenPdfUserAgent = new ConverterOpenPdfUserAgent(null, null, resourcePath, "xtrf.test.domain", sampleStyleCss, false);
 
-    @Test
+    @Test(expectedExceptions = ProcessingFailureException.class,
+            expectedExceptionsMessageRegExp = ".* leads to an unauthorized source.")
     public void should_throw_exception_because_external_resource_url_is_not_allowed() {
         // given
         String uri = "https://example.com/file.jpg";
 
-        // when
-        Exception exception = catchException(() -> converterOpenPdfUserAgent.resolveAndOpenStream(uri));
-
-        // then
-        assertException(ProcessingFailureException.class, exception);
-        assertLinesMatch(singletonList(".* leads to an unauthorized source."), singletonList(exception.getMessage()));
+        // when & then
+        converterOpenPdfUserAgent.resolveAndOpenStream(uri);
     }
 
     @Test
@@ -42,24 +35,22 @@ public class ConverterOpenPdfUserAgentTest {
         // given
         String uri = "http://localhost/file.jpg";
 
-        // when
-        Exception exception = catchException(() -> converterOpenPdfUserAgent.resolveAndOpenStream(uri));
-
-        // then (we do not expect unauthorized source only not existing file)
-        assertTrue(exception.getCause() instanceof FileNotFoundException || exception.getCause() instanceof ConnectException);
+        // when & then (we do not expect unauthorized source only not existing file)
+        try {
+            converterOpenPdfUserAgent.resolveAndOpenStream(uri);
+        } catch (ProcessingFailureException e) {
+            assertTrue(e.getCause() instanceof FileNotFoundException || e.getCause() instanceof ConnectException);
+        }
     }
 
-    @Test
+    @Test(expectedExceptions = ProcessingFailureException.class,
+            expectedExceptionsMessageRegExp = ".* leads to an unauthorized source.")
     public void should_throw_exception_because_local_file_url_is_not_allowed() {
         // given
         String uri = "file:" + this.getClass().getClassLoader().getResource("test_file.txt").getPath();
 
-        // when
-        Exception exception = catchException(() -> converterOpenPdfUserAgent.resolveAndOpenStream(uri));
-
-        // then
-        assertException(ProcessingFailureException.class, exception);
-        assertLinesMatch(singletonList(".* leads to an unauthorized source."), singletonList(exception.getMessage()));
+        // when & then
+        converterOpenPdfUserAgent.resolveAndOpenStream(uri);
     }
 
     @Test
