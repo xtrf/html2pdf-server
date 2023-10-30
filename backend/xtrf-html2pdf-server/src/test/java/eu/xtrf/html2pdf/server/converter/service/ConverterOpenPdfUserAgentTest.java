@@ -1,7 +1,6 @@
 package eu.xtrf.html2pdf.server.converter.service;
 
 import eu.xtrf.html2pdf.server.converter.exception.ProcessingFailureException;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.BufferedReader;
