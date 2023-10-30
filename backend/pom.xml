@@ -3,7 +3,7 @@
     <parent>
         <artifactId>html2pdf-server</artifactId>
         <groupId>eu.xtrf</groupId>
-        <version>1.2.0-XDEV-1358-SNAPSHOT</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <modules>
@@ -11,7 +11,7 @@
     </modules>
 
     <artifactId>backend</artifactId>
-    <version>1.2.0-XDEV-1358-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
     <name>backend</name>
     <packaging>pom</packaging>
 
