@@ -19,6 +19,7 @@ public class ConvertDocumentRequestWithHash {
                 convertDocumentRequestDto.getStyles(),
                 convertDocumentRequestDto.getSystemDomain(),
                 convertDocumentRequestDto.getTempDirectoryPath(),
+                convertDocumentRequestDto.isAllowResourcesFromDiskAndExternalDomainForGeneratingDocs(),
                 convertDocumentRequestDto.getResources());
         this.requestCounter = requestCounter;
         requestHash = computeRequestHash();

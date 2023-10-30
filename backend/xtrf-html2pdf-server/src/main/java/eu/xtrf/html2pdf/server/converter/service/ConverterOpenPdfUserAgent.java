@@ -22,14 +22,17 @@ public class ConverterOpenPdfUserAgent extends ITextUserAgent {
     private final String systemDomain;
     private final String styleCss;
     private final String styleCssUri;
+    private final boolean allowResourcesFromDiskAndExternalDomainForGeneratingDocs;
 
-    public ConverterOpenPdfUserAgent(ITextOutputDevice outputDevice, SharedContext sharedContext, String resourcePath, String systemDomain, String styleCss) {
+    public ConverterOpenPdfUserAgent(ITextOutputDevice outputDevice, SharedContext sharedContext, String resourcePath, String systemDomain, String styleCss,
+                                     boolean allowResourcesFromDiskAndExternalDomainForGeneratingDocs) {
         super(outputDevice);
         setSharedContext(sharedContext);
         this.resourcePath = resourcePath;
         this.systemDomain = systemDomain;
         this.styleCss = styleCss;
         this.styleCssUri = buildExpectedStylesCssUri(resourcePath);
+        this.allowResourcesFromDiskAndExternalDomainForGeneratingDocs = allowResourcesFromDiskAndExternalDomainForGeneratingDocs;
     }
 
     @Override
@@ -55,6 +58,9 @@ public class ConverterOpenPdfUserAgent extends ITextUserAgent {
     }
 
     private boolean isAllowedSource(URL url) {
+        if (allowResourcesFromDiskAndExternalDomainForGeneratingDocs) {
+            return true;
+        }
         if (!isValidProtocol(url)) {
             return false;
         }
