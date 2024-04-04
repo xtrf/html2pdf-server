@@ -53,7 +53,7 @@
 	<scm>
 		<connection>scm:git:ssh://git@github.com/xtrf/html2pdf-server.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/xtrf/html2pdf-server.git</developerConnection>
-		<tag>master</tag>
+		<tag>1.2-dev</tag>
 	</scm>
 
 	<build>
