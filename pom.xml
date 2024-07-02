@@ -14,7 +14,7 @@
 	</modules>
 
 	<artifactId>html2pdf-server</artifactId>
-	<version>1.3.0-SNAPSHOT</version>
+	<version>10.0.0-SNAPSHOT</version>
 	<name>html2pdf-server</name>
 	<packaging>pom</packaging>
 
