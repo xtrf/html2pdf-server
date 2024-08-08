@@ -6,14 +6,15 @@
         <version>10.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <modules>
-        <module>xtrf-html2pdf-server</module>
-    </modules>
 
-    <artifactId>backend</artifactId>
-    <version>10.0.0-SNAPSHOT</version>
-    <name>backend</name>
-    <packaging>pom</packaging>
+    <artifactId>xtrf-html2pdf-mock</artifactId>
 
 
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <version>${spring.boot.starter.version}</version>
+        </dependency>
+    </dependencies>
 </project>

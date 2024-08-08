@@ -9,8 +9,8 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<modules>
-		<module>backend</module>
-		<module>mock</module>
+		<module>xtrf-html2pdf-mock</module>
+		<module>xtrf-html2pdf-server</module>
 	</modules>
 
 	<artifactId>html2pdf-server</artifactId>
