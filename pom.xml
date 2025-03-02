@@ -32,7 +32,7 @@
 		<repository>
 			<id>euteCert-repo</id>
 			<name>euteCert release repository</name>
-			<url>https://nexus.dev.xtrf.eu/nexus/content/groups/public</url>
+			<url>https://nexus.dev.xtrf.eu/nexus/repository/public</url>
 			<releases>
 				<updatePolicy>never</updatePolicy>
 			</releases>
