@@ -38,6 +38,11 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
+        <dependency>
+            <groupId>eu.xtrf</groupId>
+            <artifactId>xtrf-utils-memory-watchdog</artifactId>
+            <version>${xtrf.utils.version}</version>
+        </dependency>
 
         <!-- Spring -->
         <dependency>

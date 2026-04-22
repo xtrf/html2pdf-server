@@ -5,6 +5,7 @@ import eu.xtrf.html2pdf.server.converter.dto.ConvertDocumentRequestDto;
 import eu.xtrf.html2pdf.server.converter.dto.ConvertDocumentRequestWithHash;
 import eu.xtrf.html2pdf.server.converter.dto.ResourceDto;
 import eu.xtrf.html2pdf.server.converter.exception.ProcessingFailureException;
+import eu.xtrf.utils.memory.watchdog.MemoryWatchdog;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
@@ -13,6 +14,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.xhtmlrenderer.extend.ReplacedElementFactory;
+import org.xhtmlrenderer.extend.TextRenderer;
+import org.xhtmlrenderer.extend.UserAgentCallback;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import java.io.File;
@@ -58,6 +62,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
     public File generatePdfToFile(ConvertDocumentRequestDto dto) {
         ConvertDocumentRequestWithHash dtoWithHash = new ConvertDocumentRequestWithHash(dto, requestCounter.incrementAndGet());
         try {
+            MemoryWatchdog.getInstance().registerThread(Thread.currentThread());
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
             String resourcesPath = prepareResourcesDir(dtoWithHash);
@@ -83,6 +88,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
             } catch (IOException e) {
                 log.warn("Cannot clear resource dir for request " + dtoWithHash.getRequestHash());
             }
+            MemoryWatchdog.getInstance().unregisterThread(Thread.currentThread());
         }
     }
 
@@ -113,6 +119,7 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
 
     private File generatePdfToFile(String themeContent, String documentContent, String styles, String resourcesPath, String systemDomain, boolean allowResourcesFromDiskAndExternalDomainForGeneratingDocs) throws IOException {
         ITextRenderer renderer = rendererProvider.prepareRenderer(resourcesPath, systemDomain, styles, allowResourcesFromDiskAndExternalDomainForGeneratingDocs);
+        applyInterruptionCheckpoints(renderer);
         fontService.loadFontsToRenderer(resourcesPath, renderer);
 
         File tempPdfFile = File.createTempFile("generated_", ".pdf");
@@ -122,6 +129,34 @@ public class Html2PdfConverterServiceImpl implements Html2PdfConverterService {
         htmlToPdf(renderer, pageWithTheme, tempPdfFile, resourcesPath);
 
         return tempPdfFile;
+    }
+
+    private void applyInterruptionCheckpoints(ITextRenderer renderer) {
+        applySafeUserAgentCallback(renderer);
+        applySafeReplacedElementFactory(renderer);
+        applySafeTextRenderer(renderer);
+    }
+
+    private void applySafeUserAgentCallback(ITextRenderer renderer) {
+        UserAgentCallback originalAgent = renderer.getSharedContext().getUserAgentCallback();
+        UserAgentCallback safeAgent = ThreadInterruptionProxyFactory.wrap(UserAgentCallback.class, originalAgent);
+        renderer.getSharedContext().setUserAgentCallback(safeAgent);
+    }
+
+    private void applySafeReplacedElementFactory(ITextRenderer renderer) {
+        ReplacedElementFactory originalFactory = renderer.getSharedContext().getReplacedElementFactory();
+        ReplacedElementFactory safeFactory = ThreadInterruptionProxyFactory.wrap(ReplacedElementFactory.class, originalFactory);
+        renderer.getSharedContext().setReplacedElementFactory(safeFactory);
+    }
+
+    /**
+     * NOTE: This is called extremely frequently. If performance issues arise
+     * in text-heavy reports, this checkpoint should be the first to be removed.
+     */
+    private void applySafeTextRenderer(ITextRenderer renderer) {
+        TextRenderer originalRenderer = renderer.getSharedContext().getTextRenderer();
+        TextRenderer safeRenderer = ThreadInterruptionProxyFactory.wrap(TextRenderer.class, originalRenderer);
+        renderer.getSharedContext().setTextRenderer(safeRenderer);
     }
 
     private static String replaceHtmlEntitiesNamesWithNumbers(String xhtml) {
