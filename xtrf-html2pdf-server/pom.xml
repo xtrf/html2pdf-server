@@ -3,7 +3,7 @@
     <parent>
         <artifactId>html2pdf-server</artifactId>
         <groupId>eu.xtrf</groupId>
-        <version>10.7.0-SNAPSHOT</version>
+        <version>10.7.0-XDEV-6073-openpdf-too-large-png-background-for-pdf-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -37,6 +37,11 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>eu.xtrf</groupId>
+            <artifactId>xtrf-utils-memory-watchdog</artifactId>
+            <version>${xtrf.utils.version}</version>
         </dependency>
 
         <!-- Spring -->
